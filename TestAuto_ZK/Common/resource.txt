@@ -1,0 +1,176 @@
+*** Settings ***
+Documentation     全局变量都定义在Common文件夹下。规则是必须以G_开头，单词首字母大写;
+...               关键字中的变量命名：首个字母小写，其他字母首字母大写
+Library           Selenium2Library
+
+*** Variables ***
+${G_ServerUrl}    http://192.168.1.102:3000
+
+*** Keywords ***
+SuccessLogin
+    [Arguments]    ${userName}    ${passWord}
+    [Documentation]    正确登录中控；
+    Open Browser    ${G_ServerUrl}    chrome    #浏览器可选:ie,chrome,firefox
+    Input Text    id=uname    ${userName}
+    Input Text    id=pwd    ${passWord}
+    Click Element    id=login
+    Wait Until Element Is Visible    id=user
+    Maximize Browser Window
+    ${welcome}    get text    xpath=//*[@id="user"]/ul/li/a    #检查元素内容；
+    Should Contain    ${welcome}    您好    #登录成功后会显示：您好，XXX
+
+ErrorLogin
+    [Arguments]    ${userName}    ${passWord}
+    [Documentation]    登录中控失败；返回错误信息
+    Open Browser    ${G_ServerUrl}    chrome
+    Wait Until Element Is Visible    id=pwd
+    Input Text    id=uname    ${userName}
+    Input Text    id=pwd    ${passWord}
+    Click Element    id=login
+    sleep    2
+    ${loginErrorMsg}    get text    id=result    #获取错误信息
+    [Return]    ${loginErrorMsg}
+
+登陆帐号
+    Open Browser    ${G_ServerUrl}    chrome
+    Wait Until Element Is Visible    id=uname
+    input text    id=uname    admin
+    input text    id=pwd    vsecure2016
+    click element    xpath=//*[@id="login"]    #点击登陆
+    Maximize Browser Window
+
+威胁管理--修改时间范围
+    sleep    2
+    click element    xpath=//*[@id="menu"]/ul/li[3]/a    #点击威胁管理
+    sleep    1
+    click element    xpath=//*[@id="lst-time"]    #点击全部时间
+    sleep    1
+
+威胁管理--修改类型
+    Wait Until Element Is Visible    xpath=//*[@id="menu"]/ul/li[3]/a
+    sleep    0.5
+    click element    xpath=//*[@id="menu"]/ul/li[3]/a    #点击威胁管理
+    click element    xpath=//*[@id="lst-type"]    #点击所有类型
+    sleep    1
+
+勾选前三个
+    sleep    3
+    click element    //*[@id='table']/table[1]/tbody[2]/tr[2]/td[1]/a[1]    #前4个勾选框
+    click element    //*[@id='table']/table[1]/tbody[2]/tr[4]/td[1]/a[1]
+    click element    //*[@id='table']/table[1]/tbody[2]/tr[6]/td[1]/a[1]
+
+验证警报是否存在(并解除)
+    [Arguments]    ${alert}
+    Alert Should Be Present    ${alert}
+
+打开企业白名单页面
+    sleep    2
+    mouse over    xpath=//*[@id="strategy_center"]/a    #鼠标移过策略中心
+    focus    xpath=//*[@id="strategy_center"]/a    #策略中心
+    Wait Until Element Is Visible    xpath=//*[@id="strategy_center"]/ul/li/a
+    click element    xpath=//*[@id="strategy_center"]/ul/li/a    #企业白名单
+
+随机生成MD5
+    ${add_MD5}    Evaluate    "".join(random.sample(string.letters(1,9)+string.digits(a,f),32))    random,string    #随机生成32位字符串，由大小写字母数字组成
+
+进入中控日志页面
+    Wait Until Element Is Visible    //*[@id="log_audit"]/a
+    mouse over    //*[@id="log_audit"]/a
+    focus    //*[@id="log_audit"]/ul/li[3]/a
+    click element    //*[@id="log_audit"]/ul/li[3]/a
+
+输入上级中控IP
+    input text    xpath=//*[@id="ip"]    192.168.1.101
+
+打开级联管理-级联设置
+    Wait Until Element Is Visible    xpath=//*[@id="system_admin"]/a
+    mouse over    xpath=//*[@id="system_admin"]/a    #鼠标移动到系统管理
+    focus    xpath=//*[@id="system_admin"]/ul/li[3]/a    #定位到级联管理
+    click element    xpath=//*[@id="system_admin"]/ul/li[3]/a    #点击级联管理
+    Wait Until Element Is Visible    xpath=//*[@id="c-nav"]
+    click element    xpath=//*[@id="c-nav"]    #点击级联管理
+
+进入安全日志页面
+    Wait Until Element Is Visible    //*[@id="log_audit"]/a
+    mouse over    //*[@id="log_audit"]/a
+    focus    //*[@id="log_audit"]/ul/li[2]/a
+    click element    //*[@id="log_audit"]/ul/li[2]/a
+
+进入终端日志页面
+    Wait Until Element Is Visible    //*[@id="log_audit"]/a
+    mouse over    //*[@id="log_audit"]/a
+    focus    //*[@id="log_audit"]/ul/li[1]/a
+    click element    //*[@id="log_audit"]/ul/li[1]/a
+
+威胁管理--修改状态察看--新发现
+    sleep    3
+    click element    xpath=//*[@id="menu"]/ul/li[3]/a    #点击威胁管理
+    click element    xpath=//*[@id="lst-status"]    #点击所有状态
+    click element    xpath=//*[@id="menu-lst-status"]/ul/li[2]/a    #点击新发现
+    sleep    2
+
+TestFail
+    [Documentation]    如果用例执行失败，关闭所有浏览器（避免RIDE的Log消失的问题），并重新登录系统
+    Run Keyword If Test Failed    close all browsers
+    Run Keyword If Test Failed    登陆帐号
+
+进入漏洞管理页面
+    sleep    1
+    mouse over    //*[@id="threat_manager"]/a    #威胁管理
+    sleep    1
+    click element    //*[@id="threat_manager"]/ul/li[2]/a    #漏洞管理
+    sleep    3
+
+登录后进入威胁管理页面
+    SuccessLogin    admin    vsecure2016
+
+进入威胁管理
+    ${server_url}    catenate    SEPARATOR=    ${G_ServerUrl}    /    ?    v=threat
+    go to    ${server_url}
+    sleep    3
+
+进入补丁详情页面
+    sleep    1
+    click element    //*[@id="table"]/table/tbody[2]/tr[2]/td[6]/span
+    sleep    5
+    unselect Frame
+
+进入漏洞日志页面
+    sleep    1
+    Wait Until Element Is Visible    //*[@id="log_audit"]/a
+    mouse over    //*[@id="log_audit"]/a
+    Wait Until Element Is Visible    //*[@id="log_audit"]/ul/li[4]/a
+    focus    //*[@id="log_audit"]/ul/li[4]/a
+    click element    //*[@id="log_audit"]/ul/li[4]/a
+
+进入企业白名单页面
+    sleep    1
+    wait until element is visible    //*[@id="strategy_center"]/a
+    mouse over    //*[@id="strategy_center"]/a
+    sleep    1
+    wait until element is visible    //*[@id="strategy_center"]/ul/li[1]/a
+    click element    //*[@id="strategy_center"]/ul/li[1]/a
+    sleep    2
+
+验证提示是否存在
+    [Arguments]    ${messageinput}
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    ${messageinput}
+
+进入文件分发页面
+    sleep    1
+    wait until element is visible    //*[@id="strategy_center"]/a
+    mouse over    //*[@id="strategy_center"]/a
+    sleep    1
+    wait until element is visible    //*[@id="strategy_center"]/ul/li[2]/a
+    click element    //*[@id="strategy_center"]/ul/li[2]/a
+    sleep    2
+
+进入计划任务页面
+    sleep    1
+    wait until element is visible    //*[@id="strategy_center"]/a
+    mouse over    //*[@id="strategy_center"]/a
+    sleep    1
+    wait until element is visible    //*[@id="strategy_center"]/ul/li[3]/a
+    click element    //*[@id="strategy_center"]/ul/li[3]/a
+    sleep    2

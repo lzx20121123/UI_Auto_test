@@ -1,0 +1,73 @@
+*** Settings ***
+Suite Setup       登录后进入授权管理页面
+Suite Teardown    close all browsers
+Test Setup        进入授权管理
+Test Teardown     TestFail
+Resource          ../Common/resource.txt
+
+*** Test Cases ***
+导入授权失败-License授权版本错误
+    #点击[导入正式授权]
+    click element    id=import-license
+    #上传试用license
+    choose file    file    ${CURDIR}\\license-normal.dat
+    #等待alert窗口出现,否则会报元素不可见
+    sleep    5
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    授权信息与绑定信息不一致
+    Choose Ok On Next Confirmation
+
+导入授权失败-License过期
+    #点击[导入正式授权]
+    click element    id=import-license
+    #上传试用license
+    choose file    file    ${CURDIR}\\license_overtime.dat
+    #等待alert窗口出现,否则会报元素不可见
+    sleep    5
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    授权信息与绑定信息不一致
+    Choose Ok On Next Confirmation
+
+导入授权失败-授权文件类型不匹配
+    [Documentation]    导入正式授权，选择试用License，检查报错信息
+    #点击[导入正式授权]
+    click element    id=import-license
+    #上传试用license
+    choose file    file    ${CURDIR}\\license_试用.dat
+    #等待alert窗口出现,否则会报元素不可见
+    sleep    5
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    授权文件类型不匹配
+    Choose Ok On Next Confirmation
+
+删除病毒库
+    mouse over    //*[@id="system_admin"]/a
+    sleep    2
+    Wait Until Element Is Visible    //*[@id="system_admin"]/ul/li[4]/a
+    sleep    2
+    click element    //*[@id="system_admin"]/ul/li[4]/a
+    sleep    2    #离线按钮
+    click element    //*[@id="virusdb-nav"]    #病毒库按钮
+    sleep    1
+    click element    //*[@id="jingyun"]/div[1]/div/a[1]
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    确定删除当前上传的病毒库吗？
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    删除成功
+
+*** Keywords ***
+登录后进入授权管理页面
+    SuccessLogin    admin    vsecure2016
+    Maximize Browser Window
+    sleep    1
+    mouse over    //*[@id="system_admin"]/a    #鼠标悬浮【系统管理】才会出现的元素
+    focus    //*[@id="system_admin"]/ul/li[5]/a
+    click element    //*[@id="system_admin"]/ul/li[5]/a    #点击【授权管理】菜单按钮
+    #检查出现【导入试用授权】菜单
+    Wait Until Element Is Visible    id=import-trial
+
+进入授权管理
+    ${server_url}    catenate    SEPARATOR=    ${G_ServerUrl}    /    ?    v=license
+    go to    ${server_url}
+    Wait Until Element Is Visible    id=active-product
+    sleep    1

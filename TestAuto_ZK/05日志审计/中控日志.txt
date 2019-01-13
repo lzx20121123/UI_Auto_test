@@ -1,0 +1,169 @@
+*** Settings ***
+Suite Setup       登陆帐号
+Suite Teardown    close all browsers
+Test Setup        进入中控日志页面
+Test Teardown     TestFail
+Test Timeout      20 minutes
+Library           Selenium2Library
+Resource          ../Common/resource.txt
+
+*** Test Cases ***
+管理员日志-检测日期筛选
+    Wait Until Element Is Visible    //*[@id="lst-time"]
+    click element    //*[@id="lst-time"]
+    sleep    1
+    click element    //*[@id="menu-lst-time"]/ul/li[1]/a
+    sleep    1
+    page should contain    今天
+    #今天
+    click element    //*[@id="lst-time"]
+    sleep    1
+    click element    //*[@id="menu-lst-time"]/ul/li[2]/a
+    sleep    1
+    page should contain    最近7天
+    #最近7天
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[3]/a
+    sleep    1
+    page should contain    最近30天
+    #最近30天
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[4]/a
+    sleep    1
+    page should contain    最近90天
+    #最近90天
+
+管理员日志-日志筛选
+    Wait Until Element Is Visible    //*[@id="lst-action"]
+    click element    //*[@id="lst-action"]
+    Wait Until Element Is Visible    //*[@id="menu-lst-action"]/li[3]/a
+    click element    //*[@id="menu-lst-action"]/li[3]/a
+    sleep    1
+    page should contain    创建帐号
+    #创建帐号
+    sleep    1
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[4]/a
+    sleep    1
+    page should contain    添加白名单文件
+    #添加白名单文件
+    sleep    1
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[5]/a
+    sleep    1
+    page should contain    登录
+    #登陆
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[6]/a
+    sleep    1
+    page should contain    创建帐号
+    #创建帐号
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[7]/a
+    sleep    1
+    page should contain    数据升级
+    #数据升级
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[8]/a
+    sleep    1
+    page should contain    级联配置
+    #级联配置
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[9]/a
+    sleep    1
+    page should contain    注销
+    #注销
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[10]/a
+    sleep    1
+    page should contain    扫描威胁
+    #扫描威胁
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[11]/a
+    sleep    1
+    page should contain    升级终端版本
+    #升级终端版本
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[12]/a
+    sleep    1
+    page should contain    清除威胁
+    #清除威胁
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[13]/a
+    sleep    1
+    page should contain    升级病毒库版本
+    #升级病毒库颁布
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[14]/a
+    sleep    1
+    page should contain    系统安全设置
+    #系统安全设置
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[15]/a
+    sleep    1
+    page should contain    系统计划任务
+    #系统计划任务
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[16]/a
+    sleep    1
+    page should contain    系统全局配置
+    #系统全局配置
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[17]/a
+    sleep    1
+    page should contain    发送消息
+    #发送消息
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[18]/a
+    sleep    1
+    page should contain    下发配置
+    #下发配置
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[19]/a
+    sleep    1
+    page should contain    删除白名单文件
+    #删除白名单文件
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[20]/a
+    sleep    1
+    page should contain    删除终端
+    #删除终端
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[21]/a
+    sleep    1
+    page should contain    修改账号信息
+    #修改帐号信息
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[22]/a
+    sleep    1
+    page should contain    删除管理员账号
+    #删除管理帐号
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[23]/a
+    sleep    1
+    page should contain    删除下级级联
+    #删除下级级联
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[24]/a
+    sleep    1
+    page should contain    取消上级级联
+    #取消上级级联
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/li[25]/a
+    sleep    1
+    page should contain    导出报表
+    #导出报表
+
+中控升级日志
+    Wait Until Element Is Visible    //*[@id="nav-update-log"]
+    click element    //*[@id="nav-update-log"]
+    sleep    1
+    click element    //*[@id="lst-action"]
+    sleep    1
+    click element    //*[@id="menu-lst-action"]/ul/li[3]/a
+    page should contain    在线升级病毒库
+    #在线升级病毒库
+    click element    //*[@id="lst-action"]
+    click element    //*[@id="menu-lst-action"]/ul/li[4]/a
+    page should contain    离线升级病毒库
+    #离线升级病毒库

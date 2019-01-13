@@ -1,0 +1,32 @@
+*** Settings ***
+Suite Setup       登陆帐号
+Suite Teardown    close all browsers
+Test Setup        进入文件分发页面
+Test Teardown     TestFail
+Test Template
+Library           Selenium2Library
+Resource          ../Common/resource.txt
+
+*** Test Cases ***
+--分发
+    sleep    1
+    sleep    2
+    click element    id=upload
+    sleep    5
+    choose file    //*[@id="uploadFileClick"]    ${CURDIR}\\JingYunLightAgentSetup.exe
+    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    上传成功
+    sleep    1
+    click button    确认下发
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    命令下发成功
+
+--分发-非exe文件类型
+    sleep    1
+    click element    id=upload
+    sleep    2
+    choose file    file    ${CURDIR}\\bmddr.xlsx
+    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    上传文件格式错误!

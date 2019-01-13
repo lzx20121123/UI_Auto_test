@@ -1,0 +1,194 @@
+*** Settings ***
+Suite Setup       登陆帐号
+Suite Teardown    close all browsers
+Test Setup        进入漏洞管理页面
+Test Teardown     TestFail
+Library           Selenium2Library
+Resource          ../Common/resource.txt
+
+*** Test Cases ***
+按终端-未勾选-立即扫描
+    sleep    1
+    click element    //*[@id="take_terminal"]    #按终端
+    sleep    1
+    click element    //*[@id="scan_rightnow"]    #立即扫描
+    sleep    2
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请选择要处理的项
+
+按终端-勾选-立即扫描
+    sleep    1
+    click element    //*[@id="take_terminal"]    #按终端
+    sleep    2
+    click element    //*[@id="table"]/table/tbody[2]/tr[2]/td[1]/a
+    click element    //*[@id="scan_rightnow"]
+    sleep    1
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    操作已下发
+
+按终端-未勾选-立即修复
+    sleep    1
+    click element    //*[@id="take_terminal"]    #按终端
+    sleep    1
+    click element    //*[@id="repair_rightnow"]    #立即修复
+    sleep    2
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请选择要处理的项
+
+按终端-勾选-立即修复
+    sleep    1
+    click element    //*[@id="take_terminal"]    #按终端
+    sleep    2
+    click element    //*[@id="table"]/table/tbody[2]/tr[2]/td[1]/a    #勾选一个
+    sleep    0.5
+    click element    //*[@id="repair_rightnow"]
+    sleep    2
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    操作已下发
+
+按终端-未勾选-修复高危
+    sleep    1
+    click element    //*[@id="take_terminal"]    #按终端
+    click element    //*[@id="repair_unsafe"]    #修复高危
+    sleep    1
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请选择要处理的项
+
+按终端-勾选-修复高危
+    sleep    1
+    click element    //*[@id="take_terminal"]    #按终端
+    sleep    2
+    click element    //*[@id="table"]/table/tbody[2]/tr[2]/td[1]/a    #勾选第一个
+    sleep    2
+    click element    //*[@id="repair_unsafe"]    #修复高危
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    操作已下发
+
+导出报表
+    sleep    1
+    click element    //*[@id="take_terminal"]
+    sleep    2
+    click element    //*[@id="export_report"]
+    sleep    5
+
+补丁详细信息-高危-未勾选-立即修复
+    进入补丁详情页面
+    click element    //*[@id="operation_repairnow"]    #立即修复
+    sleep    3
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请选择要处理的项
+    click element    //*[@id="trace-close"]
+
+补丁详细信息-高危-勾选-立即修复
+    进入补丁详情页面
+    click element    //*[@id="trace-table1"]/table/tbody[2]/tr[2]/td[1]/a    #第一行
+    sleep    5
+    click element    //*[@id="operation_repairnow"]    #立即下发
+    sleep    7
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    操作已下发
+
+补丁详细信息-可选-勾选-立即修复
+    进入补丁详情页面
+    click element    //*[@id="operation"]/form/label[2]/input    #可选
+    click element    //*[@id="operation-mgr-chk"]    #全选
+    sleep    2
+    click element    //*[@id="operation_repairnow"]    #立即修复
+    sleep    4
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    操作已下发
+
+补丁详细信息-高危-不勾选-立即修复
+    进入补丁详情页面
+    click element    //*[@id="operation"]/form/label[2]/input    #可选
+    click element    //*[@id="operation_repairnow"]    #立即修复
+    sleep    2
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请选择要处理的项
+    click element    //*[@id="trace-close"]
+
+补丁详细信息-忽略-勾选-立即修复
+    进入补丁详情页面
+    click element    //*[@id="operation"]/form/label[3]/input    #忽略补丁
+    click element    //*[@id="operation-mgr-chk"]    #全选
+    sleep    1
+    click element    //*[@id="operation_repairnow"]    #立即修复
+    sleep    2
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    操作已下发
+
+补丁详细信息-忽略-不勾选-立即修复
+    进入补丁详情页面
+    click element    //*[@id="operation"]/form/label[3]/input    #可选
+    click element    //*[@id="operation_repairnow"]    #立即修复
+    sleep    4
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请选择要处理的项
+    click element    //*[@id="trace-close"]
+
+按补丁-未勾选-立即修复
+    click element    //*[@id="take_hole"]    #按补丁
+    sleep    1
+    click element    //*[@id="hole_repair_now"]    #立即修复
+    ${message}    confirm action
+    should be equal as strings    ${message}    请选择要处理的项
+
+按补丁-勾选-立即修复
+    click element    //*[@id="take_hole"]    #按补丁
+    sleep    1
+    click element    //*[@id="mgr-chk-hole"]    #全选
+    sleep    1
+    click element    //*[@id="hole_repair_now"]    #立即修复
+
+按补丁-未勾选-忽略
+    click element    //*[@id="take_hole"]    #按补丁
+    sleep    1
+    click element    //*[@id="hole_ignore_now"]    #忽略
+    ${message}    confirm action
+    should be equal as strings    ${message}    请选择要处理的项
+
+按补丁-勾选-忽略
+    click element    //*[@id="take_hole"]    #按补丁
+    sleep    1
+    click element    //*[@id="mgr-chk-hole"]    #全选
+    sleep    1
+    click element    //*[@id="hole_ignore_now"]    #立即修复
+
+按补丁-切换补丁分类
+    click element    //*[@id="take_hole"]    #按补丁
+    sleep    1
+    click element    //*[@id="hole_select"]    #所有补丁
+    sleep    1
+    click element    //*[@id="hole_all"]    #所有补丁
+    sleep    1
+    click element    //*[@id="hole_ignore"]    #忽略补丁
+    sleep    1
+    click element    //*[@id="hole_ubsafe"]    #高危补丁
+
+按补丁-切换补丁日期
+    click element    //*[@id="take_hole"]    #按补丁
+    sleep    1
+    Capture Page Screenshot
+    click element    //*[@id="today"]    #今天
+    sleep    1
+    Capture Page Screenshot
+    click element    //*[@id="7day"]    #最近7天
+    sleep    1
+    Capture Page Screenshot
+    click element    //*[@id="30day"]    #最近30天
+    sleep    1
+    Capture Page Screenshot
+    click element    //*[@id="90day"]    #最近90天
+    Capture Page Screenshot
+
+不输入直接搜索
+    #点击搜索
+    Click Element    //*[@id="btn-search"]
+    sleep    1
+    Element Text Should Be    //*[@id="content_right"]/div[4]/a[2]    搜索结果
+    Comment    Capture Page Screenshot
+    sleep    1
+    #返回
+    Click Element    //*[@id="content_right"]/div[4]/a[1]
+    sleep    0.5
+    Capture Page Screenshot

@@ -1,0 +1,8 @@
+*** Settings ***
+Suite Setup       登陆帐号
+Suite Teardown    close all browsers
+Test Teardown     TestFail
+Resource          ../Common/resource.txt
+Library           Selenium2Library
+
+*** Test Cases ***

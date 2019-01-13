@@ -1,0 +1,202 @@
+*** Settings ***
+Documentation     1.执行完用例，必须关闭所有浏览器，避免因浏览器的驱动进程没有关闭导致的RIDE中log不显示；
+...               suite teardown:close all browsers
+...               2.test teardown中，如果用例执行失败，就关闭所有浏览器，然后进入功能模块；
+...               3.此用例集还需优化，之后会做成调用Excel表格的形式，使数据与流程分离；（v20170913）
+Suite Setup       登录后进入版本管理
+Suite Teardown    Close All Browsers
+Test Setup        进入版本管理
+Test Teardown     TestFail
+Test Timeout      20 minutes
+Resource          ../Common/resource.txt
+Library           Selenium2Library
+
+*** Test Cases ***
+首次-上传低版本
+    click element    id=manual-radio
+    Wait Until Element Is Visible    id=win-normal
+    click element    id=win-normal
+    sleep    5
+    #上传客户端安装包
+    choose file    file    ${CURDIR}\\JingyunSd_Setup_now.exe
+    #等待alert窗口出现,否则会报元素不可见
+    sleep    20    #之前设置过等待5秒，但有时会执行失败，此处设置10S
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    上传成功
+    #截屏并点击确定
+    Capture Page Screenshot
+    Choose Ok On Next Confirmation
+
+非首次-上传高版本
+    [Documentation]    非首次上传：
+    ...    step1：点击终端对应的更新按钮:
+    ...    step2：上传高版本客户端；
+    ...    验证上传成功；
+    Wait Until Element Is Visible    //*[@id="win-normal"]/div[1]/div/a[3]
+    click element    //*[@id="win-normal"]/div[1]/div/a[3]    #点击【上传更新版本】
+    #上传客户端安装包
+    choose file    file    ${CURDIR}\\JingyunSd_Setup_high.exe
+    #等待alert窗口出现,否则会报元素不可见
+    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    上传成功
+    #截屏并点击确定
+    Capture Page Screenshot
+    Choose Ok On Next Confirmation
+
+非首次-上传低版本
+    [Documentation]    非首次上传：
+    ...    step1：点击终端对应的更新按钮:
+    ...    step2：上传低版本客户端；
+    ...    验证上传失败，提示：上传终端版本过低；
+    click element    //*[@id="win-normal"]/div[1]/div/a[3]    #点击【上传更新版本】
+    #上传客户端安装包
+    choose file    file    ${CURDIR}\\JingyunSd_Setup_low.exe
+    #等待alert窗口出现,否则会报元素不可见
+    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    上传终端版本过低
+    #截屏并点击确定
+    Capture Page Screenshot
+    Choose Ok On Next Confirmation
+
+非首次-上传终端不匹配
+    [Documentation]    非首次上传：
+    ...    step1：点击终端对应的更新按钮:
+    ...    step2：上传非windows标准版客户端；
+    ...    验证上传失败，提示：客户端类型不匹配；
+    click element    //*[@id="win-normal"]/div[1]/div/a[3]    #点击【上传更新版本】
+    #上传客户端安装包
+    choose file    file    ${CURDIR}\\JingYunLightAgentSetup.exe
+    #等待alert窗口出现,否则会报元素不可见
+    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    客户端类型不匹配
+    #截屏并点击确定
+    Capture Page Screenshot
+    Choose Ok On Next Confirmation
+
+非首次-上传文件格式不对
+    [Documentation]    非首次上传：
+    ...    step1：点击终端对应的更新按钮:
+    ...    step2：上传TXT格式文件；
+    ...    验证上传失败，提示：文件验证失败；
+    click element    //*[@id="win-normal"]/div[1]/div/a[3]    #点击【上传更新版本】
+    #上传客户端安装包
+    choose file    file    ${CURDIR}\\JingyunSd_Setup.doc
+    #等待alert窗口出现,否则会报元素不可见
+    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    文件验证失败
+    #截屏并点击确定
+    Capture Page Screenshot
+    Choose Ok On Next Confirmation
+
+非首次-修改概述
+    [Documentation]    非首次上传：
+    ...    step1：点击终端对应的修改概述按钮:
+    ...    step2：修改概述内容；
+    ...    step3：点击确定按钮；
+    ...    验证修改成功，提示：修改成功；
+    click element    //*[@id="win-normal"]/div[1]/div/a[2]    #点击【修改概述】
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    Input Text    id=tt-content    景云杀毒：有效查杀已知及未知病毒，提供强大实时监控及主动防御能力    #概述内容
+    Click Element    id=btn-send
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    修改成功
+    Choose Ok On Next Confirmation
+
+首次-离线-添加病毒库(new)
+    click element    //*[@id="manual-radio"]    #离线按钮
+    click element    //*[@id="virusdb-nav"]    #病毒库按钮
+    click element    //*[@id="jingyun"]    #上传框
+    choose file    file    ${CURDIR}\\update_new.zip
+    sleep    5
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    上传成功
+
+非首次-离线-添加病毒库（old）
+    mouse over    //*[@id="system_admin"]/a
+    sleep    2
+    Wait Until Element Is Visible    //*[@id="system_admin"]/ul/li[4]/a
+    sleep    2
+    click element    //*[@id="system_admin"]/ul/li[4]/a
+    sleep    2    #离线按钮
+    click element    //*[@id="virusdb-nav"]    #病毒库按钮
+    choose file    file    ${CURDIR}\\update_old.zip
+    sleep    5
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    病毒库类型不匹配
+
+非首次-更新病毒库文件格式不对
+    Wait Until Element Is Visible    //*[@id="manual-radio"]
+    click element    //*[@id="manual-radio"]    #离线按钮
+    click element    id=virusdb-nav    #点击【病毒库】tab
+    #点击[更新]按钮
+    click element    xpath=//*[@id="jingyun"]/div[1]/div/a[2]
+    #上传全量版病毒库
+    choose file    file    ${CURDIR}\\版本管理.txt
+    #等待alert窗口出现,否则会报元素不可见
+    sleep    5    #之前设置过等待5秒，但有时会执行失败，此处设置10S
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    文件验证失败
+    Choose Ok On Next Confirmation
+
+非首次-更新病毒库低版本
+    Wait Until Element Is Visible    //*[@id="manual-radio"]
+    click element    //*[@id="manual-radio"]    #离线按钮
+    click element    id=virusdb-nav    #点击【病毒库】tab
+    #点击[更新]按钮
+    sleep    2
+    click element    xpath=//*[@id="jingyun"]/div[1]/div/a[2]
+    #上传全量版病毒库
+    choose file    file    ${CURDIR}\\update_old.zip
+    #等待alert窗口出现,否则会报元素不可见
+    sleep    5    #之前设置过等待5秒，但有时会执行失败，此处设置10S
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    上传病毒库版本过低
+    Choose Ok On Next Confirmation
+
+上级中控
+    mouse over    //*[@id="system_admin"]/a
+    sleep    2
+    Wait Until Element Is Visible    //*[@id="system_admin"]/ul/li[4]/a
+    sleep    2
+    click element    //*[@id="system_admin"]/ul/li[4]/a
+    sleep    2
+    click element    id=cascade-radio
+    ${message}    confirm action
+    should be equal as strings    ${message}    当前中控未连接上级中控
+
+非首次-删除终端
+    [Documentation]    非首次上传：
+    ...    step1：点击终端对应的删除按钮；
+    ...    step2：提示确定删除？；
+    ...    step3：点击取消按钮，终端没有删除；
+    ...    step4：点击终端对应的删除按钮；
+    ...    step5：提示确定删除？；
+    ...    step6：点击确定按钮，终端删除成功；
+    click element    //*[@id="win-normal"]/div[1]/div/a[1]    #点击【删除】
+    ${message}    confirm action
+    Choose Ok On Next Confirmation
+    ${message}    confirm action
+    Choose Ok On Next Confirmation
+    sleep    5
+
+*** Keywords ***
+登录后进入版本管理
+    SuccessLogin    admin    vsecure2016
+    Maximize Browser Window
+    mouse over    //*[@id="system_admin"]/a    #鼠标悬浮【系统管理】才会出现的元素
+    sleep    2
+    focus    //*[@id="system_admin"]/ul/li[4]/a
+    click element    //*[@id="system_admin"]/ul/li[4]/a    #点击【版本管理】菜单按钮
+    #检查出现终端tab页
+    Wait Until Element Is Visible    id=client-nav
+    sleep    2
+
+进入版本管理
+    ${server_url}    catenate    SEPARATOR=    ${G_ServerUrl}    /    ?    v=version_mgr
+    go to    ${server_url}
+    sleep    1

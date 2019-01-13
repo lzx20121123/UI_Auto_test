@@ -1,0 +1,154 @@
+*** Settings ***
+Documentation     为保持登录状态,进行以下设置:
+...
+...               1、suite setup里做一次登录
+...
+...               2、suite里的每个test case，从登录成功后的首页地址的操作做为起点（见test setup）
+...
+...               3、用例里面不管断言成功失败，下一个case又回到首页，开始操作
+...
+...               4、最后suite结束后，关闭浏览器
+Suite Setup       用户登录
+Suite Teardown    close all browsers
+Test Setup        进入首页
+Test Teardown     TestFail
+Test Timeout      20 minutes
+Resource          ../Common/resource.txt
+Library           Selenium2Library
+Library           Collections
+
+*** Test Cases ***
+任务管理
+    [Documentation]    最新任务:查看,取消
+    ...
+    ...
+    ...    历史任务:查看,删除
+    Click Element    //*[@id="c_task_mng"]/div
+    sleep    3    #有时会获取不到iframe，所以此处设置等待
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    Click Element    id=tab-new
+    sleep    1
+    Click Element    //*[@id="task-table"]/table/tbody[2]/tr[2]/td[9]/a
+    sleep    1
+    Click Element    id=tab-history
+    sleep    1
+    Click Element    //*[@id="task-table"]/table/tbody[2]/tr[2]/td[9]/a
+    sleep    1
+    #查看源码，关闭按钮在frame外，所以此处使用关键字Unselect Frame
+    Unselect Frame
+    Click Element    //*[@id="locked"]/a
+    Wait Until Element Is Visible    id=user
+    log    任务测试完成
+
+全网查杀
+    click element    //*[@id="menu"]/ul/li[1]/a    #打开首页
+    sleep    2
+    Click Element    //*[@id="c_full_scan"]/a/div
+    sleep    2
+    Wait Until Element Is Visible    id=mgr-f
+    ${text}    get text    //*[@id="nav-title"]/span[2]
+    Should Be Equal As Strings    ${text}    终端管理
+    Element Should Contain    //*[@id="mgr-m"]    更多操作
+
+配置下发
+    log    已屏蔽此功能
+    Comment    Click Element    //*[@id="c_config_send"]/a/div
+    Comment    Wait Until Element Is Visible    id=send-config
+
+计划任务
+    Click Element    //*[@id="c_shedule_task"]/a/div
+    Wait Until Element Is Visible    //*[@id="nav-title"]/span[2]
+
+企业白名单
+    Click Element    //*[@id="c_white_list"]/a/div
+    Wait Until Element Is Visible    //*[@id="nav-title"]/span[2]
+    Wait Until Element Is Visible    //*[@id="group-list"]/div[1]/div/a/span
+    Wait Until Element Is Visible    //*[@id="group-list"]/div[2]/div[1]/div/span
+
+安全动态-查看更多统计
+    Click Element    //*[@id="s_status"]/a
+    Wait Until Element Is Visible    id=mgr-c
+    sleep    1
+
+威胁趋势-查看更多统计
+    mouse over    //*[@id="thread_tend"]/div[3]/ul/li/a
+    Click Element    //*[@id="thread_tend"]/div[3]/ul/li/ul/li[1]/a
+    Wait Until Element Is Visible    id=mgr-c
+    sleep    1
+
+病毒清除
+    [Template]
+    [Timeout]
+    click element    //*[@id="menu"]/ul/li[1]/a    #打开首页
+    sleep    1
+    Element Should Contain    //*[@id="s_clean_desc"]    病毒清除
+    click element    id=s_clean_desc
+    sleep    1
+    Element Should Contain    //*[@id="s_clean_desc"]    指令已下达
+
+级联设置
+    click element    //*[@id="menu"]/ul/li[1]/a    #打开首页
+    sleep    1
+    click element    //*[@id="d_info_footer"]/td[3]/a
+    sleep    2
+    ${text}    get text    //*[@id="nav-title"]/span[2]
+    Should Be Equal As Strings    ${text}    级联管理
+
+升级
+    click element    //*[@id="menu"]/ul/li[1]/a    #打开首页
+    sleep    2
+    click element    //*[@id="btn-vversion"]
+    sleep    2
+    click element    //*[@id="btn_vup"]
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    发送病毒库升级命令成功！
+    sleep    2
+    click element    //*[@id="btn-sversion"]
+    sleep    3
+    click element    //*[@id="btn_sup"]
+    sleep    2
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    发送版本升级命令成功！
+
+官方网站
+    click element    //*[@id="menu"]/ul/li[1]/a    #打开首页
+    sleep    1
+    click element    //*[@id="office-site"]/a
+    sleep    20
+    ${titles}    Get Window Titles
+    ${titles2}    Get From List    ${titles}    1
+    ${titles1}    Get From List    ${titles}    0
+    Select Window    title=${titles2}
+    sleep    1
+    ${text}    get text    //*[@id="service-400"]/p
+    Should Be Equal As Strings    ${text}    4006-981-781
+    Close Browser
+
+部署安装
+    [Setup]    用户登录
+    sleep    3
+    click element    //*[@id="menu"]/ul/li[1]/a
+    sleep    1
+    click element    //*[@id="deploy_tb"]/tbody/tr[6]/td[2]/a
+    Select Frame    css=.w_iframe    #选择弹窗
+    ${text}    get text    //*[@id="des_title"]/p
+    Should Be Equal As Strings    ${text}    您可以复制以下链接，通过公司内部的邮件、OA或IM等通讯方式传达给终端用户进行部署
+    click element    //*[@id="preview"]
+    sleep    1
+    ${tit}    Get Window Titles
+    sleep    10
+    ${titles2}    Get From List    ${tit}    1
+    ${titles1}    Get From List    ${tit}    0
+    select window    title=${titles2}
+    sleep    1
+    ${text}    get text    //*[@id="header_download"]
+    Should Be Equal As Strings    ${text}    景云网络防病毒系统下载中心
+
+*** Keywords ***
+用户登录
+    SuccessLogin    admin    vsecure2016
+
+进入首页
+    ${server_url}    catenate    SEPARATOR=    ${G_ServerUrl}    /    ?
+    go to    ${server_url}

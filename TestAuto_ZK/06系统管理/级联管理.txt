@@ -1,0 +1,85 @@
+*** Settings ***
+Suite Setup       登录后进入级联管理页面
+Suite Teardown    close all browsers
+Test Setup        进入级联管理
+Test Teardown     TestFail
+Resource          ../Common/resource.txt
+
+*** Test Cases ***
+父级IP格式验证-输入含字母的IP
+    click button    级联设置
+    Input Text    id=ip    192.168.a.b
+    click element    id=save
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请输入正确的IP地址
+    Choose Ok On Next Confirmation
+
+父级IP格式验证-输入15个以上字符
+    click button    级联设置
+    Input Text    id=ip    192.168.111.1234
+    click element    id=save
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请输入正确的IP地址
+    Choose Ok On Next Confirmation
+
+父级IP格式验证-输入特殊字符
+    click button    级联设置
+    Input Text    id=ip    192.*#.@%.12
+    click element    id=save
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请输入正确的IP地址
+    Choose Ok On Next Confirmation
+
+父级IP格式验证-输入空格
+    click button    级联设置
+    Input Text    id=ip    ${EMPTY}
+    click element    id=save
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    上级中控IP地址不能为空
+    Choose Ok On Next Confirmation
+
+父级IP格式验证-不输入
+    click button    级联设置
+    click element    id=save
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    上级中控IP地址不能为空
+    Choose Ok On Next Confirmation
+
+父级IP合理性验证
+    [Documentation]    输入不存在的IP，检查合理性验证提示语是否正确
+    click button    级联设置
+    Input Text    id=ip    192.168.0.38
+    click element    id=save
+    sleep    5
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请确认上级中控IP是否正确
+    Choose Ok On Next Confirmation
+
+子级IP合理性验证
+    click button    级联设置
+    #父级IP
+    Input Text    id=ip    192.168.0.38
+    #子级IP
+    Input Text    id=name    192.168.0.40
+    click element    id=save
+    sleep    5
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    您填写的IP不是本控制中心IP
+    Choose Ok On Next Confirmation
+
+*** Keywords ***
+登录后进入级联管理页面
+    SuccessLogin    admin    vsecure2016
+    Maximize Browser Window
+    sleep    1
+    mouse over    //*[@id="system_admin"]/a    #鼠标悬浮【系统管理】才会出现的元素
+    focus    //*[@id="system_admin"]/ul/li[3]/a
+    click element    //*[@id="system_admin"]/ul/li[3]/a    #点击【级联管理】菜单按钮
+    #检查出现【连接】菜单
+    Wait Until Element Is Visible    id=save
+
+进入级联管理
+    ${server_url}    catenate    SEPARATOR=    ${G_ServerUrl}    /    ?    v=cascade_mgr
+    go to    ${server_url}
+    Wait Until Element Is Visible    id=save
+    sleep    1

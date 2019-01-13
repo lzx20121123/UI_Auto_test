@@ -1,0 +1,57 @@
+*** Settings ***
+Documentation     执行完用例，必须关闭所有浏览器，避免因浏览器的驱动进程没有关闭导致的RIDE中log不显示；
+...               tear down:close all browsers
+Suite Teardown    close all browsers
+Resource          ../Common/resource.txt
+
+*** Test Cases ***
+正确登录
+    SuccessLogin    admin    vsecure2016
+    Comment    close browser    #测试套件已设置teardown:关闭所有浏览器，此处不再设置
+     Close Browser
+
+不输入直接登录
+    ${ErrorMsg}    ErrorLogin    ${EMPTY}    ${EMPTY}    #用户名,密码为空
+    Should Be Equal    ${ErrorMsg}    帐号不能为空
+     Close Browser
+
+只输入用户名密码为空
+    ${ErrorMsg}    ErrorLogin    admin    ${EMPTY}    #密码为空
+    Should Be Equal    ${ErrorMsg}    密码不能为空
+     Close Browser
+
+用户名为空只输入密码
+    ${ErrorMsg}    ErrorLogin    ${EMPTY}    vsecure2016    #用户名为空
+    Should Be Equal    ${ErrorMsg}    帐号不能为空
+     Close Browser
+
+输入错误用户名
+    ${ErrorMsg}    ErrorLogin    admin123    vsecure2016
+    Should Contain    ${ErrorMsg}    帐号或密码输入错误
+     Close Browser
+
+输入错误密码
+    ${ErrorMsg}    ErrorLogin    admin    vsecure201688
+    Should Contain    ${ErrorMsg}    帐号或密码输入错误
+     Close Browser
+
+忘记密码
+    Open Browser    ${G_ServerUrl}    chrome
+    Click Element    xpath=//*[@id="forget"]/a
+    ${forget-des}    get text    xpath=//*[@id="inside"]/div/span
+    Should Contain    ${forget-des}    请直接联系admin（超级管理员），让他在账号权限设置中为您重新设置密码。
+    #点击"我知道了"回到登陆页
+    Click Element    xpath=//*[@id="inside"]/a
+    Wait Until Element Is Visible    id=login
+     Close Browser
+
+退出登录
+    SuccessLogin    admin    vsecure2016
+    Maximize Browser Window
+    #鼠标悬浮才会出现的元素
+    mouse over    //*[@id="user"]/ul/li/a
+    Comment    execute javascript    document.getElementById('umenu').childNodes[2].childNodes[0].click();    #execute javascript + getElementById定位元素
+    focus    //*[@id="umenu"]/li[2]/a
+    click element    //*[@id="umenu"]/li[2]/a[text()='退出']    #此方法只在chrome上可以定位到，ie和firefox都抱错
+    #检查是否回到首页，出现登录按钮
+    Wait Until Element Is Visible    id=login

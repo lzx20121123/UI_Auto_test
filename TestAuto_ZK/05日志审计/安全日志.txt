@@ -1,0 +1,64 @@
+*** Settings ***
+Suite Setup       登陆帐号
+Suite Teardown    close all browsers
+Test Setup        进入安全日志页面
+Test Teardown     TestFail
+Test Timeout      20 minutes
+Library           Selenium2Library
+Resource          ../Common/resource.txt
+
+*** Test Cases ***
+安全报表-检测日期筛选
+    Wait Until Element Is Visible    //*[@id="lst-time"]
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[1]/a
+    sleep    1
+    page should contain    今天
+    #今天
+    sleep    1
+    click element    //*[@id="lst-time"]
+    sleep    1
+    click element    //*[@id="menu-lst-time"]/ul/li[2]/a
+    sleep    1
+    page should contain    最近7天
+    #最近7天
+    sleep    1
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[3]/a
+    sleep    1
+    page should contain    最近30天
+    #最近30天
+    sleep    1
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[4]/a
+    sleep    1
+    page should contain    最近90天
+    #最近90天
+
+详细日志-检测日期筛选
+    Wait Until Element Is Visible    //*[@id="details-log"]
+    click element    //*[@id="details-log"]
+    Wait Until Element Is Visible    //*[@id="lst-time"]
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[1]/a
+    sleep    1
+    page should contain    今天
+    #今天
+    sleep    1
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[2]/a
+    sleep    1
+    page should contain    最近7天
+    #最近7天
+    sleep    1
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[3]/a
+    sleep    1
+    page should contain    最近30天
+    #最近30天
+    sleep    1
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[4]/a
+    sleep    1
+    page should contain    最近90天
+    #最近90天

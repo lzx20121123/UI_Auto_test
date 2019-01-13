@@ -1,0 +1,73 @@
+*** Settings ***
+Documentation     关键字中的变量命名：首个字母小写，其他字母首字母大写
+Library           Selenium2Library
+
+*** Variables ***
+${G_ServerUrl}    http://192.168.1.102:3000
+
+*** Keywords ***
+SuccessLogin
+    [Arguments]    ${userName}    ${passWord}
+    [Documentation]    正确登录中控；
+    Open Browser    ${G_ServerUrl}    chrome    #浏览器可选:ie,chrome,firefox
+    Input Text    id=uname    ${userName}
+    Input Text    id=pwd    ${passWord}
+    Click Element    id=login
+    Wait Until Element Is Visible    id=user
+    ${welcome}    get text    xpath=//*[@id="user"]/ul/li/a    #检查元素内容；
+    Should Contain    ${welcome}    您好    #登录成功后会显示：您好，XXX
+
+ErrorLogin
+    [Arguments]    ${userName}    ${passWord}
+    [Documentation]    登录中控失败；返回错误信息
+    Open Browser    http://192.168.0.41:8080    chrome
+    Input Text    id=uname    ${userName}
+    Input Text    id=pwd    ${passWord}
+    Click Element    id=login
+    ${loginErrorMsg}    get text    id=result    #获取错误信息
+    [Return]    ${loginErrorMsg}
+
+EnterVersionManager
+    [Documentation]    进入版本管理页
+    SuccessLogin    admin    vsecure2016
+    Maximize Browser Window
+    mouse over    //*[@id="system_admin"]/a    #鼠标悬浮【系统管理】才会出现的元素
+    focus    //*[@id="system_admin"]/ul/li[4]/a
+    click element    //*[@id="system_admin"]/ul/li[4]/a    #点击【版本管理】菜单按钮
+    #检查出现终端tab页
+    Wait Until Element Is Visible    id=client-nav
+
+EnterAccountManager
+    [Documentation]    进入账号管理页
+    SuccessLogin    admin    vsecure2016
+    Maximize Browser Window
+    mouse over    //*[@id="system_admin"]/a    #鼠标悬浮【系统管理】才会出现的元素
+    focus    //*[@id="system_admin"]/ul/li[2]/a
+    click element    //*[@id="system_admin"]/ul/li[2]/a    #点击【账号管理】菜单按钮
+    #检查出现【添加管理员】菜单
+    Wait Until Element Is Visible    id=add-account
+
+EnterSystemSettings
+    [Documentation]    进入系统设置页
+    SuccessLogin    admin    vsecure2016
+    Maximize Browser Window
+    mouse over    //*[@id="system_admin"]/a    #鼠标悬浮【系统管理】才会出现的元素
+    focus    //*[@id="system_admin"]/ul/li[1]/a
+    click element    //*[@id="system_admin"]/ul/li[1]/a    #点击【系统设置】菜单按钮
+    #检查出现【计划任务】tab页
+    Wait Until Element Is Visible    id=schedule-task
+
+VersionManagerTestFail
+    [Documentation]    如果用例执行失败，关闭所有浏览器（避免RIDE的Log消失的问题），并重新登录系统，进入版本管理页面
+    Run Keyword If Test Failed    Close All Browsers
+    Run Keyword If Test Failed    EnterVersionManager
+
+AccountManagerTestFail
+    [Documentation]    如果用例执行失败，关闭所有浏览器（避免RIDE的Log消失的问题），并重新登录系统，进入账号管理页面
+    Run Keyword If Test Failed    Close All Browsers
+    Run Keyword If Test Failed    EnterAccountManager
+
+SystemSettingsTestFail
+    [Documentation]    如果用例执行失败，关闭所有浏览器（避免RIDE的Log消失的问题），并重新登录系统，进入系统设置页面
+    Run Keyword If Test Failed    Close All Browsers
+    Run Keyword If Test Failed    EnterSystemSettings

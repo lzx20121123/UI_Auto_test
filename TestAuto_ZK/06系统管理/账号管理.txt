@@ -1,0 +1,181 @@
+*** Settings ***
+Documentation     1.执行完用例，必须关闭所有浏览器，避免因浏览器的驱动进程没有关闭导致的RIDE中log不显示；
+...               suite teardown:close all browsers
+...               2.test teardown中，如果用例执行失败，就关闭所有浏览器，然后进入功能模块；
+...               3.套件范围的变量命名：单词之前下划线分割；
+...               4.此用例集还需优化，之后会做成调用Excel表格的形式，使数据与流程分离；（v20170913）；
+Suite Setup       登录后进入帐号管理
+Suite Teardown    close all browsers
+Test Setup        进入帐号管理
+Test Teardown     TestFail
+Test Timeout      20 minutes
+Resource          ../Common/resource.txt
+
+*** Test Cases ***
+添加安全管理员
+    [Timeout]
+    #生成随机字符串，作为用户名
+    ${add_adminstrings}    Evaluate    "".join(random.sample(string.letters+string.digits,12))    random,string    #随机生成12位字符串，由大小写字母数字组成;sample(seq, n)从序列seq中选择n个随即且独立的元素
+    添加管理员账号基本步骤    ${add_adminstrings}    abcd8899    abcd8899
+    Click Element    id=ok
+    sleep    3
+    Wait Until Element Is Visible    id=add-account
+
+添加系统管理员
+    #生成随机字符串，作为用户名
+    ${add_adminstrings}    Evaluate    "".join(random.sample(string.letters+string.digits,12))    random,string    #随机生成12位字符串，由大小写字母数字组成
+    添加管理员账号基本步骤    ${add_adminstrings}    abcd8899    abcd8899
+    Click Element    id=lst-type
+    Click Element    //*[@id="menu-lst-type"]/ul/li[2]/a
+    Click Element    id=ok
+    sleep    3
+    Wait Until Element Is Visible    id=add-account
+
+添加审计管理员
+    #生成随机字符串，作为用户名
+    ${add_adminstrings}    Evaluate    "".join(random.sample(string.letters+string.digits,12))    random,string    #随机生成12位字符串，由大小写字母数字组成
+    添加管理员账号基本步骤    ${add_adminstrings}    abcd8899    abcd8899
+    Click Element    id=lst-type
+    Click Element    //*[@id="menu-lst-type"]/ul/li[3]/a
+    Click Element    id=ok
+    sleep    3
+    Wait Until Element Is Visible    id=add-account
+
+添加管理员-账号已存在
+    添加管理员账号基本步骤    admin    abcd8899    abcd8899
+    Click Element    id=ok
+    ${error_msg}    Get Text    //*[@id="user-content"]/div[9]
+    Should Be Equal    ${error_msg}    添加失败：该账号已存在
+    Click Element    id=cancle
+
+添加管理员-帐号为空
+    添加管理员账号基本步骤    ${EMPTY}    abc123    abc123
+    Click Element    id=ok
+    ${error_msg}    Get Text    //*[@id="user-content"]/div[9]
+    Should Be Equal    ${error_msg}    请输入用户名
+    Click Element    id=cancle
+
+添加管理员-账号超过32个字符
+    添加管理员账号基本步骤    admin-abc-123456hjklopwertnbvsaf68    abcd8899    abcd8899
+    Click Element    id=ok
+    ${error_msg}    Get Text    //*[@id="user-content"]/div[9]
+    Should Be Equal    ${error_msg}    用户名长度不正确！
+    Click Element    id=cancle
+
+添加管理员-密码为空
+    添加管理员账号基本步骤    testxx    ${EMPTY}    ${EMPTY}
+    Click Element    id=ok
+    ${error_msg}    Get Text    //*[@id="user-content"]/div[9]
+    Should Be Equal    ${error_msg}    请输入密码
+    Click Element    id=cancle
+
+添加管理员-两次密码不一致
+    添加管理员账号基本步骤    testxx    abcd123    123abcd
+    Click Element    id=ok
+    ${error_msg}    Get Text    //*[@id="user-content"]/div[9]
+    Should Be Equal    ${error_msg}    两次输入的密码不一致
+    Click Element    id=cancle
+
+添加管理员-密码少于6个字符
+    添加管理员账号基本步骤    testxx    abcd1    abcd1
+    Click Element    id=ok
+    ${error_msg}    Get Text    //*[@id="user-content"]/div[9]
+    Should Be Equal    ${error_msg}    密码长度不正确！
+    Click Element    id=cancle
+
+添加管理员-密码多于16个字符
+    添加管理员账号基本步骤    testxx    abcd8899aaaasdfgh    abcd8899aaaasdfgh
+    Click Element    id=ok
+    ${error_msg}    Get Text    //*[@id="user-content"]/div[9]
+    Should Be Equal    ${error_msg}    密码长度不正确！
+    Click Element    id=cancle
+
+添加管理员-密码纯数字组成
+    添加管理员账号基本步骤    testxx    12345678    12345678
+    Click Element    id=ok
+    ${error_msg}    Get Text    //*[@id="user-content"]/div[9]
+    Log    ${error_msg}
+    Should Be Equal    ${error_msg}    密码复杂度不够（不能由纯字符或者纯数字组成）
+    Click Element    id=cancle
+
+添加管理员-密码纯字母组成
+    添加管理员账号基本步骤    testxx    asdfghjk    asdfghjk
+    Click Element    id=ok
+    ${error_msg}    Get Text    //*[@id="user-content"]/div[9]
+    Should Be Equal    ${error_msg}    密码复杂度不够（不能由纯字符或者纯数字组成）
+    Click Element    id=cancle
+
+添加管理员-邮箱格式不正确
+    添加管理员账号基本步骤    testxx    abcd8899    abcd8899    test.com
+    Click Element    id=ok
+    ${error_msg}    Get Text    //*[@id="user-content"]/div[9]
+    Should Be Equal    ${error_msg}    邮箱规则不正确！
+    Click Element    id=cancle
+
+添加管理员-手机号规则不正确
+    添加管理员账号基本步骤    testxx    abcd8899    abcd8899    9288@qq.com    1234
+    Click Element    id=ok
+    #等待alert窗口出现,否则会报元素不可见
+    sleep    1
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    手机号规则不正确！
+    Choose Ok On Next Confirmation
+
+修改账号信息
+    #修改admin下面的第一个帐号的信息
+    Click Element    //*[@id="account-table"]/table/tbody[2]/tr[4]/td[8]/a[1]
+    sleep    3    #有时会获取不到iframe，所以此处设置等待
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    Input Text    id=account    test09161
+    Input Text    id=pwd    psw09161
+    Input Text    id=pwd-again    psw09161
+    Input Text    id=email    09161@qq.com
+    Input Text    id=phone    18801350916
+    Input Text    id=note    自动化测试：此帐号信息为自动化脚本修改后的信息
+    Click Element    id=ok
+    sleep    3
+    Wait Until Element Is Visible    id=add-account
+
+删除帐号
+    #删除admin下面第二个帐号
+    click element    //*[@id="account-table"]/table/tbody[2]/tr[6]/td[8]/a[3]
+    #点击[确定]按钮
+    click element    //*[@id="inside"]/div/div[2]/a[1]
+    sleep    1
+    log    删除成功
+
+*** Keywords ***
+添加管理员账号基本步骤
+    [Arguments]    ${add_admin}    ${add_pwd}    ${add_pwdagain}    ${add_email}=gmail@test.cn    ${add_phone}=18801356666
+    [Documentation]    添加管理员账号基本步骤:
+    ...    1.点击【添加管理员】
+    ...    2.输入账号
+    ...    3.输入密码
+    ...    4.输入邮箱
+    ...    5.输入手机号
+    Click Element    id=add-account
+    sleep    3    #有时会获取不到iframe，所以此处设置等待
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    Input Text    id=account    ${add_admin}
+    Input Text    id=pwd    ${add_pwd}
+    Input Text    id=pwd-again    ${add_pwdagain}
+    Input Text    id=email    ${add_email}
+    Input Text    id=phone    ${add_phone}
+
+登录后进入帐号管理
+    SuccessLogin    admin    vsecure2016
+    Maximize Browser Window
+    sleep    1
+    mouse over    //*[@id="system_admin"]/a    #鼠标悬浮【系统管理】才会出现的元素
+    focus    //*[@id="system_admin"]/ul/li[2]/a
+    click element    //*[@id="system_admin"]/ul/li[2]/a    #点击【账号管理】菜单按钮
+    #检查出现【添加管理员】菜单
+    Wait Until Element Is Visible    id=add-account
+
+进入帐号管理
+    ${server_url}    catenate    SEPARATOR=    ${G_ServerUrl}    /    ?    v=account_mgr
+    go to    ${server_url}
+    Comment    Wait Until Page Contains    修改信息
+    Wait Until Element Is Visible    //*[@id="account-table"]/table/tbody[2]/tr[2]/td[8]/a

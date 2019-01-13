@@ -1,0 +1,22 @@
+*** Settings ***
+Suite Setup       登陆帐号
+Suite Teardown    close all browsers
+Test Setup        进入计划任务页面
+Test Teardown     TestFail
+Resource          ../Common/resource.txt
+Library           Selenium2Library
+
+*** Test Cases ***
+清除模板
+    wait until element is visible    //*[@id="main"]/div[3]/a[1]
+    click element    //*[@id="main"]/div[3]/a[1]
+    sleep    1
+    click element    //*[@id="main"]/div[3]/a[2]/div
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    是否删除模板
+    Choose Ok On Next Confirmation
+    ${message}    confirm action
+    log    ${message}
+    Choose Ok On Next Confirmation
+
+创建模板

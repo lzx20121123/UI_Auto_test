@@ -1,0 +1,218 @@
+*** Settings ***
+Documentation     1.安装中控之后,需要先连接几个终端,扫描病毒,搭建一下环境
+Suite Setup       登陆帐号
+Suite Teardown    close all browsers
+Test Setup        进入威胁管理
+Test Teardown     TestFail
+Test Timeout      20 minutes
+Library           Selenium2Library
+Resource          ../Common/resource.txt
+
+*** Test Cases ***
+修改时间范围察看(7天)
+    sleep    3
+    威胁管理--修改时间范围
+    click element    xpath=//*[@id="menu-lst-time"]/ul/li[3]/a    #近7天
+    page should contain    最近7天
+    sleep    3
+
+修改时间范围察看（今天）
+    威胁管理--修改时间范围
+    click element    xpath=//*[@id="menu-lst-time"]/ul/li[2]/a    #今天的xpath
+    page should contain    今天
+    sleep    3
+
+修改时间范围察看（最近30天）
+    威胁管理--修改时间范围
+    click element    xpath=//*[@id="menu-lst-time"]/ul/li[4]/a    #最近30天
+    page should contain    最近30天
+    sleep    3
+
+修改时间范围察看（最近90天）
+    威胁管理--修改时间范围
+    click element    xpath=//*[@id="menu-lst-time"]/ul/li[5]/a
+    page should contain    最近90天
+    sleep    3
+
+修改状态察看(新发现)
+    威胁管理--修改状态察看--新发现
+    page should contain    新发现
+
+修改状态察看（已处理）
+    click element    xpath=//*[@id="menu"]/ul/li[3]/a    #点击威胁管理
+    click element    xpath=//*[@id="lst-status"]    #点击所有状态
+    click element    xpath=//*[@id="menu-lst-status"]/ul/li[3]/a    #已处理
+    sleep    1
+    page should contain    已处理
+    sleep    2
+
+修改病毒类型察看（文档病毒）
+    威胁管理--修改类型
+    click element    xpath=//*[@id="menu-lst-type"]/ul/li[2]/a
+    sleep    1
+    page should contain    文档病毒
+    sleep    2
+
+修改病毒类型察看（感染型病毒）
+    威胁管理--修改类型
+    click element    xpath=//*[@id="menu-lst-type"]/ul/li[3]/a
+    sleep    1
+    page should contain    感染型病毒
+    sleep    2
+
+修改病毒类型察看（系统异常））
+    威胁管理--修改类型
+    sleep    2
+    click element    xpath=//*[@id="menu-lst-type"]/ul/li[4]/a
+    sleep    1
+    page should contain    系统异常
+    sleep    2
+
+修改病毒类型察看（蠕虫病毒）
+    威胁管理--修改类型
+    sleep    2
+    click element    xpath=//*[@id="menu-lst-type"]/ul/li[5]/a
+    sleep    1
+    page should contain    蠕虫病毒
+    sleep    2
+
+修改病毒类型察看（后门病毒）
+    威胁管理--修改类型
+    Wait Until Element Is Visible    xpath=//*[@id="menu-lst-type"]/ul/li[6]/a
+    click element    xpath=//*[@id="menu-lst-type"]/ul/li[6]/a
+    sleep    1
+    page should contain    后门病毒
+    sleep    2
+
+修改病毒类型察看（流氓软件）
+    威胁管理--修改类型
+    Wait Until Element Is Visible    xpath=//*[@id="menu-lst-type"]/ul/li[7]/a
+    sleep    1
+    click element    xpath=//*[@id="menu-lst-type"]/ul/li[7]/a    #流氓软件
+    sleep    1
+    page should contain    流氓软件
+    sleep    2
+
+修改病毒类型察看（漏洞利用病毒）
+    进入威胁管理
+    威胁管理--修改类型
+    Wait Until Element Is Visible    //*[@id="menu-lst-type"]/ul/li[8]/a
+    sleep    0.5
+    click element    //*[@id="menu-lst-type"]/ul/li[8]/a    #漏洞利用病毒
+    page should contain    漏洞利用病毒
+    sleep    2
+
+修改病毒类型察看（木马病毒）
+    进入威胁管理
+    威胁管理--修改类型
+    Wait Until Element Is Visible    xpath=//*[@id="menu-lst-type"]/ul/li[9]/a
+    click element    xpath=//*[@id="menu-lst-type"]/ul/li[9]/a    #木马病毒
+    page should contain    木马病毒
+    sleep    2
+
+修改病毒类型察看（黑客工具）
+    进入威胁管理
+    威胁管理--修改类型
+    Wait Until Element Is Visible    xpath=//*[@id="menu-lst-type"]/ul/li[10]/a
+    click element    xpath=//*[@id="menu-lst-type"]/ul/li[10]/a    #黑客工具
+    page should contain    黑客工具
+    sleep    2
+
+清除威胁(全部)
+    威胁管理--修改状态察看--新发现
+    Wait Until Element Is Visible    xpath=//*[@id="filter"]/div[2]/a[1]
+    click element    xpath=//*[@id="filter"]/div[2]/a[1]    #全选
+    click element    xpath=//*[@id="mgr-c"]    #清除威胁
+    sleep    2
+    click element    xpath=//*[@id="inside"]/div/div[2]/a[1]    #强制
+    sleep    1
+    验证警报是否存在(并解除)    清除命令下发成功!    #清除命令下发成功!
+
+加入白名单(部分)
+    威胁管理--修改时间范围
+    Wait Until Element Is Visible    xpath=//*[@id="menu-lst-time"]/ul/li[5]/a
+    click element    xpath=//*[@id="menu-lst-time"]/ul/li[5]/a    #近90天
+    勾选前三个
+    click element    xpath=//*[@id="mgr-w"]    #加入白名单
+    验证警报是否存在(并解除)    批量入白成功!
+
+加入白名单(全选)
+    威胁管理--修改时间范围
+    Wait Until Element Is Visible    xpath=//*[@id="menu-lst-time"]/ul/li[5]/a
+    click element    xpath=//*[@id="menu-lst-time"]/ul/li[5]/a    #90天
+    sleep    2
+    click element    xpath=//*[@id="filter"]/div[2]/a[1]    #全选框
+    click element    xpath=//*[@id="mgr-w"]    #加入白名单
+    验证警报是否存在(并解除)    不支持全选入白
+
+搜文件
+    Wait Until Element Is Visible    //*[@id="threat_manager"]/a
+    click element    //*[@id="threat_manager"]/a    #威胁管理
+    sleep    2
+    click element    //*[@id="btn-search"]    #搜索按钮
+    sleep    1
+    Element Text Should Be    //*[@id="table-content"]/div[2]/a[2]    搜索结果
+
+搜终端
+    Wait Until Element Is Visible    //*[@id="threat_manager"]/a
+    click element    //*[@id="threat_manager"]/a    #威胁管理
+    sleep    2
+    click element    //*[@id="lst-search"]
+    sleep    1
+    click element    //*[@id="menu-lst-search"]/ul/li[2]/a    #选择搜终端
+    sleep    1
+    click element    //*[@id="btn-search"]    #搜索按钮
+    sleep    1
+    Element Text Should Be    //*[@id="table-content"]/div[2]/a[2]    搜索结果
+
+未选中终端-加入白名单
+    Wait Until Element Is Visible    id=mgr-w
+    Click Element    id=mgr-w
+    #等待alert窗口出现,否则会报元素不可见
+    Comment    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请选择要处理的项
+    Choose Ok On Next Confirmation
+
+不输入直接搜索
+    Wait Until Element Is Visible    id=btn-search
+    #点击搜索
+    Click Element    id=btn-search
+    sleep    1
+    Element Text Should Be    //*[@id="table-content"]/div[2]/a[2]    搜索结果
+    Comment    Capture Page Screenshot
+    sleep    1
+    #返回
+    Click Element    //*[@id="table-content"]/div[2]/a[1]
+    sleep    0.5
+    Capture Page Screenshot
+
+未选中威胁-清除威胁
+    Wait Until Element Is Visible    id=mgr-c
+    Click Element    id=mgr-c
+    #等待alert窗口出现,否则会报元素不可见
+    Comment    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请选择要处理的项
+    Choose Ok On Next Confirmation
+
+检查下发清除威胁命令成功
+    [Documentation]    威胁列表中，选中所有状态为未处理的威胁，执行清除命令
+    Wait Until Element Is Visible    id=lst-status
+    #选中全部威胁状态为新发现的威胁，执行清除命令
+    click element    id=lst-status
+    #新发现
+    click element    //*[@id="menu-lst-status"]/ul/li[2]/a
+    #等待列表更新
+    sleep    3
+    #勾选全部复选框
+    click element    //*[@id="filter"]/div[2]/a[1]
+    #点击清除
+    click element    id=mgr-c
+    #选择强制
+    click element    //*[@id="inside"]/div/div[2]/a[1]
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    清除命令下发成功!
+    Choose Ok On Next Confirmation
+
+*** Keywords ***

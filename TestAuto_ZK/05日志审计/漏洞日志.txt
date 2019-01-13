@@ -1,0 +1,96 @@
+*** Settings ***
+Suite Setup       登陆帐号
+Suite Teardown    close all browsers
+Test Setup        进入漏洞日志页面
+Test Teardown     TestFail
+Resource          ../Common/resource.txt
+Library           Selenium2Library
+
+*** Test Cases ***
+漏洞报表-日期筛选
+    click element    //*[@id="chart-log"]    #漏洞报表
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[1]/a
+    sleep    1
+    page should contain    今天
+    #今天
+    sleep    1
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[2]/a
+    sleep    1
+    page should contain    最近7天
+    #最近7天
+    sleep    1
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[3]/a
+    sleep    1
+    page should contain    最近30天
+    #最近30天
+    sleep    1
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[4]/a
+    sleep    1
+    page should contain    最近90天
+    #最近90天
+
+详情日志-日期筛选
+    Wait Until Element Is Visible    //*[@id="details-log"]
+    click element    //*[@id="details-log"]
+    Wait Until Element Is Visible    //*[@id="lst-time"]
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[1]/a
+    sleep    1
+    page should contain    今天
+    #今天
+    sleep    1
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[2]/a
+    sleep    1
+    page should contain    最近7天
+    #最近7天
+    sleep    1
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[3]/a
+    sleep    1
+    page should contain    最近30天
+    #最近30天
+    sleep    1
+    click element    //*[@id="lst-time"]
+    click element    //*[@id="menu-lst-time"]/ul/li[4]/a
+    sleep    1
+    page should contain    最近90天
+    #最近90天
+
+详情日志-日志筛选
+    Wait Until Element Is Visible    //*[@id="details-log"]
+    click element    //*[@id="details-log"]
+    Wait Until Element Is Visible    //*[@id="lst-status"]
+    click element    //*[@id="lst-status"]
+    click element    //*[@id="menu-lst-status"]/ul/li[1]/a
+    sleep    1
+    page should contain    下载失败
+    #未修复
+    Wait Until Element Is Visible    //*[@id="lst-status"]
+    click element    //*[@id="lst-status"]
+    click element    //*[@id="menu-lst-status"]/ul/li[2]/a
+    sleep    1
+    page should contain    下载失败
+    #下载失败
+    Wait Until Element Is Visible    //*[@id="lst-status"]
+    click element    //*[@id="lst-status"]
+    click element    //*[@id="menu-lst-status"]/ul/li[3]/a
+    sleep    1
+    page should contain    安装失败
+    #安装失败
+    Wait Until Element Is Visible    //*[@id="lst-status"]
+    click element    //*[@id="lst-status"]
+    click element    //*[@id="menu-lst-status"]/ul/li[4]/a
+    sleep    1
+    page should contain    修复成功
+    #修复成功
+    Wait Until Element Is Visible    //*[@id="lst-status"]
+    click element    //*[@id="lst-status"]
+    click element    //*[@id="menu-lst-status"]/ul/li[5]/a
+    sleep    1
+    page should contain    修复成功
+    #已忽略

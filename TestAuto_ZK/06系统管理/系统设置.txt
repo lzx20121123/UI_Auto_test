@@ -1,0 +1,281 @@
+*** Settings ***
+Documentation     1.执行完用例，必须关闭所有浏览器，避免因浏览器的驱动进程没有关闭导致的RIDE中log不显示；
+...               suite teardown:close all browsers
+...               2.test teardown中，如果用例执行失败，就关闭所有浏览器，然后进入功能模块；
+...               3.套件范围的变量命名：单词之前下划线分割；
+Suite Setup       登录后进入系统设置
+Suite Teardown    Close All Browsers
+Test Setup        进入系统设置
+Test Teardown     TestFail
+Test Timeout      20 minutes
+Resource          ../Common/resource.txt
+
+*** Test Cases ***
+安全设置-添加防卸载密码
+    click element    //*[@id="schedule-task"]
+    sleep    1
+    ${attri_class}    Get Element Attribute    open-uninstall-pwd@class
+    log    ${attri_class}    #class属性为radio-off时，才可以输入防卸载密码
+    #循环语句Run Keyword If
+    #判断条件为字符时，必须加单引号或双引号
+    Run Keyword If    '${attri_class}'=='radio-off'    启用防卸载密码保护
+    ...    ELSE IF    '${attri_class}'=='radio-on'    禁用防卸载密码保护
+    ...    ELSE    log    class属性异常
+
+安全设置-添加防退出密码
+    click element    //*[@id="schedule-task"]
+    sleep    1
+    ${attri_class}    Get Element Attribute    open-exit-pwd@class
+    log    ${attri_class}    #class属性为radio-off时，才可以输入防退出密码
+    #循环语句Run Keyword If
+    #判断条件为字符时，必须加单引号或双引号
+    Run Keyword If    '${attri_class}'=='radio-off'    启用防退出密码保护
+    ...    ELSE IF    '${attri_class}'=='radio-on'    禁用防退出密码保护
+    ...    ELSE    log    class属性异常
+
+全局设置-设置时间自动清除离线客户端
+    click element    //*[@id="schedule-task"]
+    sleep    1
+    ${attri_class}    Get Element Attribute    auto-del-client@class
+    log    ${attri_class}
+    #循环语句Run Keyword If
+    #判断条件为字符时，必须加单引号或双引号
+    Run Keyword If    '${attri_class}'=='radio-off'    启用自动清除终端
+    ...    ELSE IF    '${attri_class}'=='radio-on'    禁用自动清除终端
+    ...    ELSE    log    class属性异常
+
+注册配置-静默注册
+    click element    id=register-set
+    click element    id=top-title
+    click element    id=btn
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    保存成功！
+
+注册-非静默注册
+    click element    id=register-set
+    click element    id=top-title
+    click element    id=btn
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    保存成功！
+
+注册-添加公司信息
+    click element    id=register-set
+    click element    id=company-img
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    #等待页面加载
+    sleep    3
+    #生成随机字符串，作为公司名称
+    #随机生成8位字符串，由大小写字母数字组成;sample(seq, n)从序列seq中选择n个随即且独立的元素
+    ${company_strings}    Evaluate    "".join(random.sample(string.letters+string.digits,8))    random,string
+    Input Text    //*[@id="modal-dialog"]/div[2]/div[1]/div[1]/input    ${company_strings}
+    click element    id=add
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    添加成功
+
+注册-添加部门信息
+    #添加部门
+    click element    id=register-set
+    click element    id=department-img
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    #等待页面加载
+    sleep    3
+    #choose company
+    click element    id=choosecompanyname
+    sleep    1
+    click element    id=companyname0
+    #生成随机字符串，作为公司名称
+    #随机生成8位字符串，由大小写字母数字组成;sample(seq, n)从序列seq中选择n个随即且独立的元素
+    ${department_strings}    Evaluate    "".join(random.sample(string.letters+string.digits,8))    random,string
+    Input Text    //*[@id="modal-dialog"]/div[2]/div[1]/div[3]/input    ${department_strings}
+    click element    id=add
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    添加成功
+
+注册-添加二级部门信息
+    #添加部门
+    click element    id=register-set
+    click element    id=sub-department-img
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    #choose company
+    click element    id=choosecompanyname
+    sleep    1
+    click element    id=companyname0
+    #choose department
+    click element    id=choosedepartmentname
+    sleep    1
+    click element    id=departmentname0
+    #生成随机字符串，作为公司名称
+    #随机生成8位字符串，由大小写字母数字组成;sample(seq, n)从序列seq中选择n个随即且独立的元素
+    ${department_strings}    Evaluate    "".join(random.sample(string.letters+string.digits,8))    random,string
+    Input Text    //*[@id="modal-dialog"]/div[2]/div[1]/div[2]/input    ${department_strings}
+    click element    id=add
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    添加成功
+
+注册-删除二级部门信息
+    click element    id=register-set
+    click element    id=sub-department-img
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    sleep    1    #等待部门信息列表加载完整
+    click element    //*[@id="company_table"]/div[6]/img
+    click element    id=sure
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    删除成功
+
+注册-删除部门信息
+    click element    id=register-set
+    click element    id=department-img
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    sleep    1    #等待部门信息列表加载完整
+    click element    //*[@id="company_table"]/div[5]/img
+    click element    id=sure
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    删除成功
+
+注册-删除公司信息
+    click element    id=register-set
+    click element    id=company-img
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    sleep    1    #等待公司列表加载完整
+    click element    //*[@id="company_table"]/div[5]/img
+    click element    id=sure
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    删除成功
+
+*** Keywords ***
+保存成功弹窗处理
+    #等待alert窗口出现,否则会报元素不可见
+    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    保存成功
+    Choose Ok On Next Confirmation
+
+启用病毒库自动升级
+    #设置自动升级
+    Click Element    xpath=//*[@id="v-auto-update" and @class="radio-off"]
+    #设置病毒库升级时间-每周
+    Click Element    id=lst-virus-type
+    Click Element    //*[@id="menu-lst-virus-type"]/ul/li[1]/a
+    #设置病毒库升级时间-周三
+    Click Element    id=lst-virus-weekday
+    Click Element    //*[@id="menu-lst-virus-weekday"]/ul/li[3]/a
+    #设置病毒库升级时间-09:30
+    Click Element    id=lst-virus-time
+    Click Element    //*[@id="menu-lst-virus-time"]/ul/li[20]/a
+    #点击【保存】
+    Click Element    id=schedule-save
+    保存成功弹窗处理
+
+禁用病毒库自动升级
+    #设置不可自动升级
+    Click Element    xpath=//*[@id="v-auto-update" and @class="radio-on"]
+    Click Element    id=schedule-save
+    保存成功弹窗处理
+
+启用软件自动升级
+    #设置自动升级
+    Click Element    xpath=//*[@id="s-auto-update" and @class="radio-off"]
+    #设置病毒库升级时间-每周
+    Click Element    id=lst-soft-type
+    Click Element    //*[@id="menu-lst-soft-type"]/ul/li[1]/a
+    #设置病毒库升级时间-周五
+    Click Element    id=lst-soft-weekday
+    Click Element    //*[@id="menu-lst-soft-weekday"]/ul/li[5]/a
+    #设置病毒库升级时间-18:30
+    Click Element    id=lst-soft-time
+    Click Element    //*[@id="menu-lst-soft-time"]/ul/li[38]/a
+    #点击【保存】
+    Click Element    id=schedule-save
+    保存成功弹窗处理
+
+禁用软件自动升级
+    #设置不可自动升级
+    Click Element    xpath=//*[@id="s-auto-update" and @class="radio-on"]
+    Click Element    id=schedule-save
+    保存成功弹窗处理
+
+启用防卸载密码保护
+    #启用终端密码保护
+    Click Element    //*[@id="open-uninstall-pwd" and @class="radio-off"]
+    Input text    id=uninstall-pwd    jingyun123
+    Click Element    id=safe-save
+    保存成功弹窗处理
+
+禁用防卸载密码保护
+    #禁用终端密码保护
+    Click Element    //*[@id="open-uninstall-pwd" and @class="radio-on"]
+    Click Element    id=safe-save
+    保存成功弹窗处理
+
+启用防退出密码保护
+    #启用终端密码保护
+    Click Element    //*[@id="open-exit-pwd" and @class="radio-off"]
+    Input text    id=exit-pwd    exitjingyun123
+    Click Element    id=safe-save
+    保存成功弹窗处理
+
+禁用防退出密码保护
+    #禁用终端密码保护
+    Click Element    //*[@id="open-exit-pwd" and @class="radio-on"]
+    Click Element    id=safe-save
+    保存成功弹窗处理
+
+启用自动清除终端
+    #自动清除离线时间超过60天的终端
+    Click Element    //*[@id="auto-del-client" and @class="radio-off"]
+    Input text    id=client-del-days    60
+    Click Element    id=safe-save
+    保存成功弹窗处理
+
+禁用自动清除终端
+    #取消自动清除离线时间超过N天的终端
+    Click Element    //*[@id="auto-del-client" and @class="radio-on"]
+    Click Element    id=safe-save
+    保存成功弹窗处理
+
+开启定时扫描
+    #设置自动升级
+    Click Element    xpath=//*[@id="auto-scan-switch" and @class="radio-off"]
+    #设置扫描终端-全网终端
+    Click Element    id=lst-client
+    Click Element    //*[@id="tree_div_0"]/span[3]
+    #点击任意位置
+    Click Element    //*[@id="schedule-content"]/div[12]/span
+    #设置扫描时间-每天12:00
+    Click Element    id=lst-type
+    Click Element    //*[@id="menu-lst-type"]/ul/li[2]/a
+    Click Element    id=lst-time
+    Click Element    //*[@id="menu-lst-time"]/ul/li[25]/a
+    #设置扫描类型-闪电查杀
+    Click Element    id=lst-scan
+    Click Element    //*[@id="menu-lst-scan"]/ul/li[1]/a
+    #点击【保存】
+    Click Element    id=schedule-save
+    保存成功弹窗处理
+
+取消定时扫描
+    #取消定时扫描
+    Click Element    xpath=//*[@id="auto-scan-switch" and @class="radio-on"]
+    Click Element    id=schedule-save
+    保存成功弹窗处理
+
+登录后进入系统设置
+    SuccessLogin    admin    vsecure2016
+    Maximize Browser Window
+    sleep    1
+    mouse over    //*[@id="system_admin"]/a    #鼠标悬浮【系统管理】才会出现的元素
+    focus    //*[@id="system_admin"]/ul/li[1]/a
+    click element    //*[@id="system_admin"]/ul/li[1]/a    #点击【系统设置】菜单按钮
+    #检查出现【计划任务】tab页
+    Wait Until Element Is Visible    id=schedule-task
+
+进入系统设置
+    ${server_url}    catenate    SEPARATOR=    ${G_ServerUrl}    /    ?    v=system_config
+    go to    ${server_url}
+    sleep    1

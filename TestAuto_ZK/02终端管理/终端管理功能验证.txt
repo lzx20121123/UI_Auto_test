@@ -1,0 +1,277 @@
+*** Settings ***
+Suite Setup       登录
+Suite Teardown    close all browsers
+Test Setup        进入终端管理
+Test Teardown     TestFail
+Test Timeout      20 minutes
+Library           Selenium2Library
+Resource          ../Common/resource.txt
+
+*** Test Cases ***
+新建分组
+    click element    id=add-group
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    #选择[全网终端]
+    click element    id=lst-client
+    click element    //*[@id="tree_div_0"]/span[3]
+    #点击任意位置
+    click element    //*[@id="d-up-level"]/span
+    #生成随机字符串，作为公司名称
+    #随机生成8位字符串，由大小写字母数字组成;sample(seq, n)从序列seq中选择n个随即且独立的元素
+    ${group_name}    Evaluate    "".join(random.sample(string.letters+string.digits,8))    random,string
+    input text    id=group-name    ${group_name}
+    click element    id=ok
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    添加分组成功
+
+编辑分组
+    log    列表暂时没法定位
+
+删除分组
+    log    列表暂时没法定位
+
+新建分组最多建三层
+    click element    id=add-group
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    #选择[全网终端]
+    click element    id=lst-client
+    click element    //*[@id="tree_div_0"]/span[3]
+    #点击任意位置
+    click element    //*[@id="d-up-level"]/span
+    #生成随机字符串，作为公司名称
+    #随机生成8位字符串，由大小写字母数字组成;sample(seq, n)从序列seq中选择n个随即且独立的元素
+    ${group_name}    Evaluate    "".join(random.sample(string.letters+string.digits,8))    random,string
+    input text    id=group-name    ${group_name}
+    click element    id=ok
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    添加分组成功
+    sleep    1
+
+不能添加重复的分组名称
+    click element    id=add-group
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    #等待页面加载
+    sleep    1
+    #选择[全网终端]
+    click element    id=lst-client
+    click element    //*[@id="tree_div_0"]/span[3]
+    #点击任意位置
+    click element    //*[@id="d-up-level"]/span
+    #生成随机字符串，作为公司名称
+    #随机生成8位字符串，由大小写字母数字组成;sample(seq, n)从序列seq中选择n个随即且独立的元素
+    ${group_name}    Evaluate    "".join(random.sample(string.letters+string.digits,8))    random,string
+    input text    id=group-name    ${group_name}
+    click element    id=ok
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    添加分组成功
+    #再次添加
+    click element    id=add-group
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    input text    id=group-name    ${group_name}
+    click element    id=ok
+    #以后要改，因为此判断重复的功能还没开发
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    添加分组成功
+
+组名不能为空
+    click element    id=add-group
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    click element    id=ok
+    ${message}    Get Text    //*[@id="group-content"]/div[3]
+    Should Be Equal As Strings    ${message}    请输入分组名称
+
+组名可以输入中/英/数字/空格/特殊字符
+    click element    id=add-group
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    #选择[全网终端]
+    click element    id=lst-client
+    sleep    1
+    click element    //*[@id="tree_div_0"]/span[3]
+    #点击任意位置
+    click element    //*[@id="d-up-level"]/span
+    #生成随机字符串，作为公司名称
+    #随机生成8位字符串，由大小写字母数字组成;sample(seq, n)从序列seq中选择n个随即且独立的元素
+    ${group_name}    Evaluate    "".join(random.sample(string.letters+string.digits,8))    random,string
+    #Catenate用于拼接两个字符串
+    ${spe1_name}    Catenate    ${group_name}    ${SPACE}
+    ${spe2_name}    Catenate    辰信领创    ${spe1_name}
+    input text    id=group-name    ${spe2_name}
+    click element    id=ok
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    添加分组成功
+
+取消新建分组
+    click element    id=add-group
+    #处理iframe弹窗
+    Select Frame    css=.w_iframe    #通过class查找元素
+    click element    id=cancle
+    Wait Until Element Is Visible    id=add-group
+    Comment    Capture Page Screenshot
+
+取消删除分组
+    click element    id=add-group
+    Comment    #处理iframe弹窗
+    Comment    Select Frame    css=.w_iframe    #通过class查找元素
+    click element    //*[@id="locked"]/a
+    Wait Until Element Is Visible    id=add-group
+    Comment    Capture Page Screenshot
+
+闪电查杀-全选
+    Click Element    //*[@id="filter"]/div[2]/a[1]
+    Click Element    id=mgr-q
+    sleep    0.5
+    Click Element    //*[@id="inside"]/div/div[2]/a[1]
+    #等待alert窗口出现,否则会报元素不可见
+    Comment    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    操作已下发!
+    Choose Ok On Next Confirmation
+
+闪电查杀-部分选中
+    sleep    1
+    #选中三个终端
+    #笨办法：选中前三条
+    Click Element    //*[@id='table']/table[1]/tbody[2]/tr[2]/td[1]/a[1]    #//*[@id='table']/*/a[starts-with(@id,'table_check')]
+    Comment    Click Element    //*[@id='table']/table[1]/tbody[2]/tr[4]/td[1]/a[1]
+    Comment    Click Element    //*[@id='table']/table[1]/tbody[2]/tr[6]/td[1]/a[1]
+    #点击闪电查杀
+    Click Element    id=mgr-q
+    sleep    0.5
+    #点击强制下发
+    Click Element    //*[@id="inside"]/div/div[2]/a[1]
+    #等待alert窗口出现,否则会报元素不可见
+    Comment    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    操作已下发!
+    Choose Ok On Next Confirmation
+
+闪电查杀-部分选中2
+    sleep    1
+    Click Element    //*[@id='table']/table[1]/tbody[2]/*/td[1]/a[starts-with(@id,'table_check')]    #为什么只定位到了一条？？？
+    Click Element    id=mgr-q
+    sleep    0.5
+    Click Element    //*[@id="inside"]/div/div[2]/a[1]
+    #等待alert窗口出现,否则会报元素不可见
+    Comment    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    操作已下发!
+    Choose Ok On Next Confirmation
+
+查看在线终端
+    click element    id=lst-status
+    click element    //*[@id="menu-lst-status"]/ul/li[2]/a
+    sleep    1
+    Capture Page Screenshot
+
+查看离线终端
+    click element    id=lst-status
+    click element    //*[@id="menu-lst-status"]/ul/li[3]/a
+    sleep    1
+    Capture Page Screenshot
+
+未选中终端，更改分组
+    Click Element    id=mgr-m
+    Click Element    //*[@id="menu-lst-more"]/ul/li[1]/a
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请选择要更改分组的终端
+    Choose Ok On Next Confirmation
+
+未选中终端，删除终端
+    Click Element    id=mgr-m
+    Click Element    //*[@id="menu-lst-more"]/ul/li[3]/a
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    是否删除终端
+    Choose Ok On Next Confirmation
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请选择要删除的终端
+    Choose Ok On Next Confirmation
+
+未选中终端，下发闪电查杀
+    Click Element    id=mgr-q
+    #等待alert窗口出现,否则会报元素不可见
+    Comment    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请选择要处理的项
+    Choose Ok On Next Confirmation
+
+未选中终端，下发全盘查杀
+    Click Element    id=mgr-f
+    #等待alert窗口出现,否则会报元素不可见
+    Comment    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请选择要处理的项
+    Choose Ok On Next Confirmation
+
+未选中终端，下发升级命令
+    Click Element    id=mgr-u
+    #update All
+    Click Element    //*[@id="menu-lst-update"]/ul/li[1]/a
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    请选择要处理的项
+    Choose Ok On Next Confirmation
+
+不输入直接搜索
+    #点击搜索
+    Click Element    id=btn-search
+    sleep    1
+    Element Text Should Be    //*[@id="table-content"]/div[2]/a[2]    搜索结果
+    Comment    Capture Page Screenshot
+    #返回
+    Click Element    //*[@id="table-content"]/div[2]/a[1]
+    sleep    0.5
+
+升级病毒库
+    Click Element    //*[@id="filter"]/div[2]/a[1]
+    Click Element    id=mgr-u
+    #update virus
+    Click Element    //*[@id="menu-lst-update"]/ul/li[2]/a
+    sleep    0.5
+    Click Element    //*[@id="inside"]/div/div[2]/a[1]
+    #等待alert窗口出现,否则会报元素不可见
+    Comment    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    操作已下发!
+    Choose Ok On Next Confirmation
+
+升级软件
+    Click Element    //*[@id="filter"]/div[2]/a[1]
+    Click Element    id=mgr-u
+    #update software
+    Click Element    //*[@id="menu-lst-update"]/ul/li[3]/a
+    sleep    0.5
+    Click Element    //*[@id="inside"]/div/div[2]/a[1]
+    #等待alert窗口出现,否则会报元素不可见
+    Comment    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    操作已下发!
+    Choose Ok On Next Confirmation
+
+升级全部
+    Click Element    //*[@id="filter"]/div[2]/a[1]
+    Click Element    id=mgr-u
+    #update All
+    Click Element    //*[@id="menu-lst-update"]/ul/li[1]/a
+    sleep    0.5
+    Click Element    //*[@id="inside"]/div/div[2]/a[1]
+    #等待alert窗口出现,否则会报元素不可见
+    Comment    sleep    10
+    ${message}    confirm action
+    Should Be Equal As Strings    ${message}    操作已下发!
+    Choose Ok On Next Confirmation
+
+*** Keywords ***
+登录
+    SuccessLogin    admin    vsecure2016
+    Maximize Browser Window
+    sleep    2
+
+进入终端管理
+    ${server_url}    catenate    SEPARATOR=    ${G_ServerUrl}    /    ?    v=client
+    go to    ${server_url}
+    Wait Until Element Is Visible    //*[@id="nav-title"]/span[2]

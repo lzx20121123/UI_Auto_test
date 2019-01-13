@@ -1,0 +1,297 @@
+*** Settings ***
+Suite Setup       登陆帐号
+Suite Teardown    close all browsers
+Test Setup        进入企业白名单页面
+Test Teardown     TestFail
+Resource          ../Common/resource.txt
+Library           Selenium2Library
+
+*** Test Cases ***
+输入MD5/扩展名到企业白名单
+    input text    //*[@id="content-header"]/div/form/div/div/div[1]/input    10f06f6c942cee49529c8182a1f73263
+    sleep    1
+    click button    添加
+    sleep    1
+    unselect Frame
+    Page Should Contain    添加成功！
+    click button    确定
+    sleep    2
+
+输入错误的MD5到企业白名单
+    input text    //*[@id="content-header"]/div/form/div/div/div[1]/input    10f06f6c942cee49529c8182a1f7326
+    click button    添加
+    sleep    1
+    unselect Frame
+    Page Should Contain    您输入的白名单格式不正确，请按以下格式重新输入！
+    click button    确定
+
+输入错误的扩展名到企业白名单
+    input text    //*[@id="content-header"]/div/form/div/div/div[1]/input    .exe
+    click button    添加
+    sleep    1
+    unselect Frame
+    Page Should Contain    您输入的白名单格式不正确，请按以下格式重新输入！
+    click button    确定
+
+输入错误的路径到企业白名单
+    input text    //*[@id="content-header"]/div/form/div/div/div[1]/input    D:
+    click button    添加
+    sleep    1
+    unselect Frame
+    Page Should Contain    您输入的白名单格式不正确，请按以下格式重新输入！
+    click button    确定
+
+输入正确的路径到企业白名单
+    input text    //*[@id="content-header"]/div/form/div/div/div[1]/input    C:\\user\\
+    sleep    1
+    click button    添加
+    sleep    1
+    unselect Frame
+    Page Should Contain    添加成功！
+    click button    确定
+    sleep    1
+
+输入正确的拓展名到企业白名单
+    input text    //*[@id="content-header"]/div/form/div/div/div[1]/input    *.exe
+    sleep    1
+    click button    添加
+    sleep    1
+    unselect Frame
+    Page Should Contain    添加成功！
+    click button    确定
+    sleep    2
+
+添加信任文件
+    Wait Until Element Is Visible    //*[@id="content-header"]/div/form/div/div/button[2]/span    #添加信任文件
+    click button    添加信任文件
+    sleep    2
+    unselect Frame
+    click button    浏览
+    sleep    2
+    choose file    file    ${CURDIR}\\JingyunSd_Setup_now.exe
+    sleep    10
+    click button    保存
+    sleep    2
+    unselect Frame
+    Page Should Contain    添加信任文件成功！
+    click button    确定
+    sleep    2
+
+添加信任文件-大于100M
+    Wait Until Element Is Visible    //*[@id="content-header"]/div/form/div/div/button[2]/span    #添加信任文件
+    click button    添加信任文件
+    sleep    2
+    unselect Frame
+    click button    浏览
+    sleep    2
+    choose file    file    ${CURDIR}\\JingyunSd_Setup_IP_192_168_1_13_Win.exe
+    sleep    1.5
+    unselect Frame
+    Page Should Contain    上传附件大小不能超过 100MB!
+    sleep    5
+    click element    //*[@id="dialog-section"]/div[1]/div/div/div[1]/button/i
+
+添加信任文件-未选择文件直接保存
+    Wait Until Element Is Visible    //*[@id="content-header"]/div/form/div/div/button[2]/span    #添加信任文件
+    click button    添加信任文件
+    sleep    2
+    unselect Frame
+    click button    浏览
+    sleep    2
+    click button    保存
+    sleep    1
+    unselect Frame
+    Page Should Contain    请选择信任文件再保存。
+    sleep    2
+    click button    确定
+    sleep    1
+    click element    //*[@id="dialog-section"]/div[1]/div/div/div[1]/button/i
+
+未输入-直接点击添加
+    input text    //*[@id="content-header"]/div/form/div/div/div[1]/input    ${EMPTY}
+    sleep    1
+    click button    添加
+    sleep    1
+    unselect Frame
+    Page Should Contain    您输入的白名单格式不正确，请按以下格式重新输入！
+    click button    确定
+    sleep    2
+
+未勾选-删除
+    sleep    1
+    click button    更多菜单
+    sleep    1
+    click element    //html/body/ul/li[3]
+    sleep    1
+    unselect Frame
+    Page Should Contain    抱歉，当前未勾选任何白名单，请先勾选再删除！
+    click button    确定
+
+勾选-删除-取消
+    click element    //*[@id="content-main"]/div[1]/div[3]/table/tbody/tr[1]/td[1]/div/label/span/span
+    click button    更多菜单
+    sleep    2
+    click element    //html/body/ul/li[3]
+    sleep    0.5
+    unselect Frame
+    click button    取消
+    sleep    1
+    unselect Frame
+    sleep    1
+    Page Should Contain    已取消删除
+
+勾选-删除-确定
+    click element    //*[@id="content-main"]/div[1]/div[3]/table/tbody/tr[1]/td[1]/div/label/span/span
+    click button    更多菜单
+    sleep    1
+    click element    //html/body/ul/li[3]
+    sleep    0.5
+    unselect Frame
+    Page Should Contain    您是否确定将勾选的信任项直接删除?
+    click button    确定
+    sleep    1
+    unselect Frame
+    Page Should Contain    成功！
+    click button    确定
+
+未勾选-复制到
+    click button    更多菜单
+    sleep    2
+    click element    //html/body/ul/li[4]
+    unselect Frame
+    Page Should Contain    请先选择要复制的白名单
+    click button    确定
+
+勾选-复制到-取消
+    sleep    2
+    click element    //*[@id="content-main"]/div[1]/div[3]/table/tbody/tr[1]/td[1]/div/label/span/span
+    click button    更多菜单
+    sleep    2
+    click element    //html/body/ul/li[4]
+    unselect Frame
+    click element    //*[@id="dialog-section"]/div[3]/div/div/div[2]/form/div/div[2]/div[2]/div[1]/div/span[2]    #第一个分组
+    click button    取消
+    sleep    1
+    ${text}    get text    //*[@id="nav-title"]/span[2]
+    Should Be Equal As Strings    ${text}    企业白名单
+
+--勾选-复制到-不选择-确定--
+    sleep    2
+    click element    //*[@id="content-main"]/div[1]/div[3]/table/tbody/tr[1]/td[1]/div/label/span/span
+    click button    更多菜单
+    sleep    2
+    click element    //html/body/ul/li[4]
+    unselect Frame
+    click button    确定
+    sleep    1
+    unselect Frame
+    page should contain    未指定复制到哪个组！
+    sleep    2
+    #Reload Page
+    ${text}    get text    //*[@id="nav-title"]/span[2]
+    Should Be Equal As Strings    ${text}    企业白名单
+
+勾选-复制到-选择-确定
+    sleep    2
+    click element    //*[@id="content-main"]/div[1]/div[3]/table/tbody/tr[1]/td[1]/div/label/span/span
+    click button    更多菜单
+    sleep    2
+    click element    //html/body/ul/li[4]
+    unselect Frame
+    click element    //*[@id="dialog-section"]/div[3]/div/div/div[2]/form/div/div[2]/div[2]/div[1]/div/span[2]    #第一个分组
+    click button    确定
+    sleep    1
+    unselect Frame
+    sleep    1
+    Page Should Contain    复制白名单成功
+    Reload Page
+    ${text}    get text    //*[@id="nav-title"]/span[2]
+    Should Be Equal As Strings    ${text}    企业白名单
+
+勾选-复制到-X
+    sleep    2
+    click element    //*[@id="content-main"]/div[1]/div[3]/table/tbody/tr[1]/td[1]/div/label/span/span
+    click button    更多菜单
+    sleep    2
+    click element    //html/body/ul/li[4]
+    unselect Frame
+    click element    //*[@id="dialog-section"]/div[3]/div/div/div[1]/button/i
+    sleep    1
+    ${text}    get text    //*[@id="nav-title"]/span[2]
+    Should Be Equal As Strings    ${text}    企业白名单
+
+勾选-复制到-选择-取消
+    sleep    2
+    click element    //*[@id="content-main"]/div[1]/div[3]/table/tbody/tr[1]/td[1]/div/label/span/span
+    click button    更多菜单
+    sleep    2
+    click element    //html/body/ul/li[4]
+    sleep    1
+    unselect Frame
+    click element    //*[@id="dialog-section"]/div[3]/div/div/div[2]/button[1]/span
+    sleep    2
+    ${text}    get text    //*[@id="nav-title"]/span[2]
+    Should Be Equal As Strings    ${text}    企业白名单
+
+----批量导入-excel-内容一致
+    sleep    2
+    click button    更多菜单
+    sLeep    3
+    click element    //html/body/ul/li[1]
+    unselect Frame
+    click button    选取文件
+    sleep    3
+    choose file    file    ${CURDIR}\\bmddr.xlsx
+    click button    上传到服务器
+    sleep    1
+    unselect Frame
+    Page Should Contain    一共导入白名单4条。
+    click button    确定
+    sleep    1
+
+---批量导入-非excel
+    sleep    2
+    click button    更多菜单
+    sLeep    2
+    click element    //html/body/ul/li[1]
+    unselect Frame
+    click button    选取文件
+    sleep    1
+    choose file    file    ${CURDIR}\\en-US-7-1.bdic
+    click button    上传到服务器
+    sleep    1
+    unselect Frame
+    Page Should Contain    上传文件不是excel,请重新上传！
+    click button    确定
+    sleep    1
+    click element    //*[@id="dialog-section"]/div[2]/div/div/div[1]/button/i
+
+---批量导入-excel-内容不一致
+    sleep    2
+    click button    更多菜单
+    sLeep    2
+    click element    //html/body/ul/li[1]
+    unselect Frame
+    click button    选取文件
+    sleep    1
+    choose file    file    ${CURDIR}\\bmddr2.xlsx
+    click button    上传到服务器
+    sleep    1
+    unselect Frame
+    Page Should Contain    上传文件内容有问题,详情见错误日志！
+    click button    确定
+    click element    //*[@id="dialog-section"]/div[2]/div/div/div[1]/button/i
+    sleep    1
+
+主界面删除信任项
+    sleep    2
+    click element    //*[@id="content-main"]/div[1]/div[3]/table/tbody/tr[1]/td[5]/div/button
+    sleep    2
+    unselect frame
+    click button    确定
+    sleep    2
+    unselect frame
+    Page Should Contain    成功！
+    Reload Page
+    ${text}    get text    //*[@id="nav-title"]/span[2]
+    Should Be Equal As Strings    ${text}    企业白名单
